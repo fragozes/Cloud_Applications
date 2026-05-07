@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 
 #Exercise
-@app.route('/books', methods = ['GET'])
+@app.route('/books_dic', methods = ['GET'])
 def books():
     dis = [{
     "title": "The Gruffalo",
@@ -26,7 +26,6 @@ def books():
     }
     ]
     return dis
-
 
 
 
@@ -71,20 +70,23 @@ def authors():
 
 @app.route("/books_html", methods = ["GET"])
 def books_html():
-    return render_template("books.html")
-
-@app.route("/", methods = ["GET"])
-def index():
-    return render_template("index.html")
+    return render_template("books_ht.html")
 
 #Flask just run files inside (templates folder)
 @app.route("/css_practice", methods = ["GET"])
 def index_html_css():
     return render_template("css_practice/index.html")
 
-@app.route("/cat", methods = ["GET"])
-def cat_test():
-    return render_template("cat.html")
+from lib.DatabaseConnection import *
+from lib.BookRepository import *
+@app.route("/books", methods = ["GET"])
+def get_all_books():
+    connection = DatabaseConnection()
+    connection.connect()
+    book_repository = BooksRepository(connection)
+    books = book_repository.all()
+    print(books)
+    return render_template("books.html")
 
 # NEW PART END
 
