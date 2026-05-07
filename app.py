@@ -82,7 +82,9 @@ def index():
 def index_html_css():
     return render_template("css_practice/index.html")
 
-
+@app.route("/cat", methods = ["GET"])
+def cat_test():
+    return render_template("cat.html")
 
 # NEW PART END
 
