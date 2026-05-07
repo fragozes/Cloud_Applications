@@ -13,6 +13,6 @@ class BooksRepository():
         for row in rows:
             item = Books(row["id"],
                         row["title"], 
-                        row["author_name"])
+                        row["author"])
             books.append(item)
         return books

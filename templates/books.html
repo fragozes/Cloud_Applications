@@ -3,3 +3,9 @@
     width="300">
 <h1>Welcome to AceReads Test</h1>
 
+<ul>
+    {% for book in books %}
+    <li>{{ book.title }} by {{book.author}}</li>
+    {% endfor %}
+</ul>
+

@@ -77,6 +77,12 @@ def books_html():
 def index_html_css():
     return render_template("css_practice/index.html")
 
+@app.route('/team', methods=['GET'])
+def get_team():
+    team = ["Dorothy", "Rose", "Blanche", "Sophia"]
+    return render_template("team.html", team=team)
+
+
 from lib.DatabaseConnection import *
 from lib.BookRepository import *
 @app.route("/books", methods = ["GET"])
@@ -85,8 +91,8 @@ def get_all_books():
     connection.connect()
     book_repository = BooksRepository(connection)
     books = book_repository.all()
-    print(books)
-    return render_template("books.html")
+    # print(books)
+    return render_template("books.html", books = books )
 
 # NEW PART END
 
