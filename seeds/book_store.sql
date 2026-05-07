@@ -8,8 +8,7 @@ CREATE TABLE books (
     author_name VARCHAR(255)
 );
 
-INSERT INTO books (title, author_name) VALUES ('Nineteen Eighty-Four', 'George Orwell');
-INSERT INTO books (title, author_name) VALUES ('Mrs Dalloway', 'Virginia Woolf');
-INSERT INTO books (title, author_name) VALUES ('Emma', 'Jane Austen');
-INSERT INTO books (title, author_name) VALUES ('Dracula', 'Bram Stoker');
-INSERT INTO books (title, author_name) VALUES ('The Age of Innocence', 'Edith Wharton');
+INSERT INTO books (title, author) VALUES ('The Gruffalo', 'Julia Donaldson');
+INSERT INTO books (title, author) VALUES ('Ada Twist, Scientist', 'Andrea Beaty');
+INSERT INTO books (title, author) VALUES ('The Girl Who Drank the Moon', 'Kelly Barnhill');
+INSERT INTO books (title, author) VALUES ('Dragons in a Bag', 'Zetta Elliott');
