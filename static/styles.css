@@ -1,0 +1,41 @@
+/*Images (img)
+width / height – resize the image
+border-radius – round the corners
+opacity – make the image transparent*/
+
+/*Boxes and layout (div, section, etc.)
+background-color – background colour
+width / height – size of the element
+margin – space outside the element
+padding – space inside the element
+border – a border around the element
+*/
+
+/*Text and headings (p, h1–h6)
+color – text colour
+font-size – size of the text
+line-height - space between lines
+font-family – which font to use
+font-weight – how bold the text is
+text-align – align text left, centre, or right */
+p {
+    color: red;
+    font-size: 18px;
+}
+
+/*Change the background colour of the whole page... */
+body {
+    background-color: white;
+}
+
+/*Make all headings bold and dark grey... */
+h1 {
+    font-weight: bold;
+    color: darkgray;
+}
+
+/*Give all images a rounded border...*/
+img {
+    border: 5px solid gold;
+    border-radius: 8px;
+}
