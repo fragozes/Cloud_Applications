@@ -4,8 +4,8 @@ DROP SEQUENCE IF EXISTS books_id_seq;
 CREATE SEQUENCE IF NOT EXISTS books_id_seq;
 CREATE TABLE books (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(255),
-    author_name VARCHAR(255)
+    title TEXT,
+    author TEXT
 );
 
 INSERT INTO books (title, author) VALUES ('The Gruffalo', 'Julia Donaldson');
