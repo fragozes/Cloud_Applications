@@ -1,6 +1,6 @@
-from flask import Flask
+from flask import Flask 
 # Add 'render_template' to your listed imports from Flask
-from flask import Flask, render_template 
+from flask import Flask, render_template, request, redirect
 # instantiate a Flask app object
 app = Flask(__name__)
 
@@ -93,6 +93,38 @@ def get_all_books():
     books = book_repository.all()
     # print(books)
     return render_template("books.html", books = books )
+
+#Add new book
+# adds `request` to your existing import
+from flask import Flask, request
+@app.route('/books', methods=['POST'])
+def create_book():
+    # make a new database connection
+    connection = DatabaseConnection()
+    connection.connect()
+    # make a new instance of BookRepository
+    book_repository = BooksRepository(connection)
+    # get the request body
+    #book_details = request.json
+    book_details = request.form
+    # my BookRepository expects an instance of Book, so make one here
+    book = Books(title=book_details["title"], author=book_details["author"])
+    # save the book
+    book_repository.create_book(book)
+    # return a 201, which means "created"
+    #return "created", 201
+    #Redirecting
+    return redirect ("/books")
+
+# '''
+# in my terminal run:
+# curl -X POST http://localhost:5001/books \
+# -H "Content-Type: application/json" \
+# -d '{"title":"Book Title","author":"Author Name"}'
+
+# I should see: created returned in the terminal where you used curl
+
+# '''
 
 # NEW PART END
 
