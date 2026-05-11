@@ -18,7 +18,7 @@ class DatabaseConnection:
     def connect(self):
         try:
             self.connection = psycopg.connect(
-                f"postgresql://postgres:password@book_store_db/{self.DATABASE_NAME}",
+                f"postgresql://localhost/{self.DATABASE_NAME}",
                 row_factory=dict_row)
         except psycopg.OperationalError:
             raise Exception(f"Couldn't connect to the database {self.DATABASE_NAME}! " \
