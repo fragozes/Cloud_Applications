@@ -8,8 +8,9 @@ import os
 # If the below seems too complex right now, that's OK.
 # That's why we have provided it!
 class DatabaseConnection:
-    DATABASE_NAME = "book_store" # <-- CHANGE THIS!
-
+    #(os.getenv) switching between databases when you run your tests.
+    DATABASE_NAME = os.getenv("book_store") # <-- CHANGE THIS!
+    print(DATABASE_NAME)
     def __init__(self):
         self.connection = None
 

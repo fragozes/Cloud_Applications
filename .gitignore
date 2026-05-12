@@ -5,3 +5,11 @@ env/
 *.pem
 .DS_Store
 __pycache__/
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
