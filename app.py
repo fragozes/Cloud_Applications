@@ -116,6 +116,25 @@ def create_book():
     #Redirecting
     return redirect ("/books")
 
+#GET /users/new" request
+@app.route('/users/new', methods=['GET'])
+def get_signup_form():
+    return render_template("signup_form.html")
+
+from lib.User import *
+from lib.UserRepository import *
+
+# and the new route
+@app.route('/users', methods=['POST'])
+def create_user():
+    connection = DatabaseConnection()
+    connection.connect()
+    user_repository = UserRepository(connection)
+    user_details = request.form
+    user = User(username=user_details["username"], password=user_details["password"])
+    user_repository.create(user)
+    return redirect("/books")
+
 # '''
 # in my terminal run:
 # curl -X POST http://localhost:5001/books \

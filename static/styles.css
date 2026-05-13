@@ -31,7 +31,7 @@ body {
 /*Make all headings bold and dark grey... */
 h1 {
     font-weight: bold;
-    color: darkgray;
+    color: rgb(0, 0, 0);
 }
 
 /*Give all images a rounded border...*/
