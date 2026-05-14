@@ -55,9 +55,12 @@ jobs:
               sleep 5
 
               docker exec -i book_store_db psql \
-                -U ${{ secrets.POSTGRES_USER }} \
-                -d book_store \
+                -U ${{ secrets.POSTGRES_USER }} -d book_store \
                 < /home/ec2-user/book_store/Cloud_Applications/seeds/book_store.sql
+
+              docker exec -i book_store_db psql \
+                -U ${{ secrets.POSTGRES_USER }} -d book_store \
+                < /home/ec2-user/book_store/Cloud_Applications/seeds/users.sql
             fi
 
       - name: Build Docker image
