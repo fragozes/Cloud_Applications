@@ -94,4 +94,6 @@ jobs:
               -p 5001:5001 \
               -e DATABASE_HOST=book_store_db \
               -e DATABASE_NAME=book_store \
+              -e DATABASE_USER=${{ secrets.POSTGRES_USER }} \
+              -e DATABASE_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
               book_store:latest
