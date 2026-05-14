@@ -21,7 +21,7 @@ jobs:
           port: 22
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "./Dockerfile, ./*.py, ./requirements.txt, ./seeds, ./templates, ./static, ./lib"
-          target: ~/book_store/Cloud_Applications
+          target: /home/ec2-user/book_store/Cloud_Applications
 
       - name: Ensure Docker network exists
         uses: appleboy/ssh-action@v1.0.3
@@ -47,11 +47,17 @@ jobs:
               docker run \
                 --name book_store_db \
                 --network book_store_network \
-                -e POSTGRES_USER='${{ secrets.POSTGRES_USER }}' \
-                -e POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
-                -e POSTGRES_DB='book_store' \
+                -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
+                -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+                -e POSTGRES_DB=book_store \
                 -d postgres:17
-              docker exec -i book_store_db psql -U postgres -d book_store < ~/book_store/seeds/books.sql
+
+              sleep 5
+
+              docker exec -i book_store_db psql \
+                -U ${{ secrets.POSTGRES_USER }} \
+                -d book_store \
+                < /home/ec2-user/book_store/Cloud_Applications/seeds/book_store.sql
             fi
 
       - name: Build Docker image
@@ -62,7 +68,8 @@ jobs:
           port: 22
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker build --pull -t book_store:latest ~/book_store
+            docker build --pull -t book_store:latest \
+              /home/ec2-user/book_store/Cloud_Applications
 
       - name: Deploy new container
         uses: appleboy/ssh-action@v1.0.3
@@ -82,4 +89,6 @@ jobs:
               --network book_store_network \
               --restart unless-stopped \
               -p 5001:5001 \
+              -e DATABASE_HOST=book_store_db \
+              -e DATABASE_NAME=book_store \
               book_store:latest
