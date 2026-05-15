@@ -1,7 +1,12 @@
-from flask import Flask 
 # Add 'render_template' to your listed imports from Flask
 from flask import Flask, request, redirect, render_template, session
 # instantiate a Flask app object
+from lib.login_required import *
+from lib.User import *
+from lib.UserRepository import *
+from lib.film_repository import *
+from lib.DatabaseConnection import *
+from lib.BookRepository import *
 app = Flask(__name__)
 app.secret_key = "some_really_secret_key"
 
@@ -88,9 +93,8 @@ def get_team():
     team = ["Dorothy", "Rose", "Blanche", "Sophia"]
     return render_template("team.html", team=team)
 
+#BOOKS ----------------------------------------------------------
 
-from lib.DatabaseConnection import *
-from lib.BookRepository import *
 @app.route("/books", methods = ["GET"])
 def get_all_books():
     connection = DatabaseConnection()
@@ -102,14 +106,19 @@ def get_all_books():
 
 #Add new book
 # adds `request` to your existing import
-from flask import Flask, request
+
+
 @app.route('/books', methods=['POST'])
-def create_book():
+#Log in before you're able to create books.
+@login_required
+def create_book(): 
     # make a new database connection
     connection = DatabaseConnection()
     connection.connect()
+
     # make a new instance of BookRepository
     book_repository = BooksRepository(connection)
+
     # get the request body
     #book_details = request.json
     book_details = request.form
@@ -122,32 +131,8 @@ def create_book():
     #Redirecting
     return redirect ("/books")
 
-#GET /users/new" request
-@app.route('/users/new', methods=['GET'])
-def get_signup_form():
-    return render_template("signup_form.html")
+#FILMS ----------------------------------------------------------
 
-#Log-in Form
-@app.route('/sessions/new', methods=['GET'])
-def get_login_form():
-    return render_template("login_form.html")
-
-
-from lib.User import *
-from lib.UserRepository import *
-
-# and the new route
-@app.route('/users', methods=['POST'])
-def create_user():
-    connection = DatabaseConnection()
-    connection.connect()
-    user_repository = UserRepository(connection)
-    user_details = request.form
-    user = User(username=user_details["username"], password=user_details["password"])
-    user_repository.create(user)
-    return redirect("/books")
-
-from lib.film_repository import *
 @app.route('/films', methods=['GET'])
 def get_all_films():
     connection = DatabaseConnection()
@@ -166,6 +151,52 @@ def make_new_film():
     film_repository.create_film(film)
     return redirect("/films")
 
+#USER --------------------------------------------------------------
+#GET /users/new" request
+@app.route('/users/new', methods=['GET'])
+def get_signup_form():
+    return render_template("signup_form.html")
+
+#Log-in Form
+@app.route('/sessions/new', methods=['GET'])
+def get_login_form():
+    return render_template("login_form.html")
+
+
+
+
+# and the new route
+@app.route('/users', methods=['POST'])
+def create_user():
+    connection = DatabaseConnection()
+    connection.connect()
+    user_repository = UserRepository(connection)
+    user_details = request.form
+    user = User(username=user_details["username"], password=user_details["password"])
+    user_repository.create(user)
+    return redirect("/books")
+
+
+#Handling Submission of the Log-in Form
+@app.route('/sessions', methods=['POST'])
+def create_session():
+    connection = DatabaseConnection()
+    connection.connect()
+    user_repository = UserRepository(connection)
+
+    username = request.form["username"]
+    password = request.form["password"]
+
+    user = user_repository.find_by_username(username)
+
+    if user and user.password == password:
+        session["user_id"] = user.id
+        session["username"] = user.username
+        return redirect("/books")
+    else:
+        return redirect("/sessions/new")
+
+# ----------------------------------------------------------
 # '''
 # in my terminal run:
 # curl -X POST http://localhost:5001/books \
