@@ -1,8 +1,9 @@
 from flask import Flask 
 # Add 'render_template' to your listed imports from Flask
-from flask import Flask, render_template, request, redirect
+from flask import Flask, request, redirect, render_template, session
 # instantiate a Flask app object
 app = Flask(__name__)
+app.secret_key = "some_really_secret_key"
 
 
 #Exercise
@@ -67,10 +68,15 @@ def authors():
     ]
     return dic
 
+@app.route("/help")
+def help_css_html():
+    return render_template("Help.html")
+
 
 @app.route("/books_html", methods = ["GET"])
 def books_html():
     return render_template("books_ht.html")
+
 
 #Flask just run files inside (templates folder)
 @app.route("/css_practice", methods = ["GET"])
@@ -121,6 +127,12 @@ def create_book():
 def get_signup_form():
     return render_template("signup_form.html")
 
+#Log-in Form
+@app.route('/sessions/new', methods=['GET'])
+def get_login_form():
+    return render_template("login_form.html")
+
+
 from lib.User import *
 from lib.UserRepository import *
 
@@ -134,6 +146,25 @@ def create_user():
     user = User(username=user_details["username"], password=user_details["password"])
     user_repository.create(user)
     return redirect("/books")
+
+from lib.film_repository import *
+@app.route('/films', methods=['GET'])
+def get_all_films():
+    connection = DatabaseConnection()
+    connection.connect()
+    film_repository = FilmRepository(connection)
+    films = film_repository.all()
+    return render_template("films.html", films=films)
+
+@app.route('/films', methods=['POST'])
+def make_new_film():
+    connection = DatabaseConnection()
+    connection.connect()
+    film_repository = FilmRepository(connection)
+    film_details = request.form
+    film = Film(title=film_details["title"], genre=film_details["genre"], release_year=film_details["release_year"])
+    film_repository.create_film(film)
+    return redirect("/films")
 
 # '''
 # in my terminal run:
@@ -153,5 +184,5 @@ def create_user():
 #**************************************************************
 #All calling methods must be before this condition.
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5002, debug=True)
 #**************************************************************

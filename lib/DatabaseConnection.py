@@ -8,11 +8,10 @@ import os
 # If the below seems too complex right now, that's OK.
 # That's why we have provided it!
 class DatabaseConnection:
-    #(os.getenv) switching between databases when you run your tests.
-    DATABASE_NAME = os.getenv("DATABASE_NAME", "book_store_test")
-    DATABASE_HOST = os.getenv("DATABASE_HOST", "localhost") # <<< grab the new env var (Dockerised Deployment)
-    DATABASE_USER = os.getenv("DATABASE_USER", "postgres")
-    DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD", "password")
+    DATABASE_NAME     = os.getenv("DATABASE_NAME","book_store_test")
+    DATABASE_HOST     = os.getenv("DATABASE_HOST","localhost")
+    DATABASE_USER     = os.getenv("DATABASE_USER","luizfragozes")
+    DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD", "")
 
     print(DATABASE_NAME)
     def __init__(self):
@@ -22,11 +21,16 @@ class DatabaseConnection:
     # to localhost and select the database name given in argument.
     def connect(self):
         try:
-            self.connection = psycopg.connect(
-                #f"postgresql://localhost/{self.DATABASE_NAME}",
-                #use the new env var
-                f"postgresql://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}/{self.DATABASE_NAME}",
-                row_factory=dict_row)
+            if self.DATABASE_PASSWORD == "":
+                # Mac — no password needed
+                self.connection = psycopg.connect(
+                    f"postgresql://{self.DATABASE_HOST}/{self.DATABASE_NAME}",
+                    row_factory=dict_row)
+            else:
+                # EC2 — user and password required
+                self.connection = psycopg.connect(
+                    f"postgresql://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}/{self.DATABASE_NAME}",
+                    row_factory=dict_row)
         except psycopg.OperationalError:
             raise Exception(f"Couldn't connect to the database {self.DATABASE_NAME}! " \
                     f"Did you create it using `createdb {self.DATABASE_NAME}`?")

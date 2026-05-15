@@ -34,7 +34,7 @@ from playwright.sync_api import Page, expect
 #     assert actual_books == expected_books
 
 def test_create_new_book(page: Page):
-    page.goto("http://127.0.0.1:5001/books")
+    page.goto("http://127.0.0.1:5002/books")
     page.get_by_placeholder("Title").fill("The Chroicles of Geronimo (the cat)")
     page.get_by_placeholder("Author").fill("Geronimo")
     page.get_by_role("button", name="Submit").click()
