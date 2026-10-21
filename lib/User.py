@@ -13,4 +13,5 @@ class User:
 
         # This method makes it look nicer when we print a Book
     def __repr__(self):
-        return f"Book({self.id}, {self.username}, {self.password})"
+        # Never print the password hash
+        return f"User({self.id}, {self.username})"

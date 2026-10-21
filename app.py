@@ -1,97 +1,21 @@
-# Add 'render_template' to your listed imports from Flask
+import os
+import secrets
+
 from flask import Flask, request, redirect, render_template, session
-# instantiate a Flask app object
+from werkzeug.security import generate_password_hash, check_password_hash
+
 from lib.login_required import *
 from lib.User import *
 from lib.UserRepository import *
 from lib.film_repository import *
 from lib.DatabaseConnection import *
 from lib.BookRepository import *
+
 app = Flask(__name__)
-app.secret_key = "some_really_secret_key"
+# The session key comes from the environment. Without it, a random key is
+# made at start, so a restart logs everyone out but nothing is guessable.
+app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 
-
-#Exercise
-@app.route('/books_dic', methods = ['GET'])
-def books():
-    dis = [{
-    "title": "The Gruffalo",
-    "author": "Julia Donaldson"
-    },
-    {
-    "title": "Ada Twist, Scientist",
-    "author": "Andrea Beaty"
-    },
-    {
-    "title": "The Girl Who Drank the Moon",
-    "author": "Kelly Barnhill"
-    },
-    {
-    "title": "Dragons in a Bag",
-    "author": "Zetta Elliott"
-    }
-    ]
-    return dis
-
-
-
-# Declares a route that listens for a GET request to the path /hello
-# and a method to execute when that request comes in
-@app.route('/hello', methods=['GET'])
-def hello():
-    return "Hello to you too"
-
-# NEW PART START
-
-# duplicate route
-@app.route('/hello1', methods=['GET'])
-def hello_again():
-    return "Hello, hello and hello again!"
-
-
-#Challenge
-print("test")
-@app.route('/authors', methods=['GET'])
-def authors():
-    dic = [
-    {
-    "name": "Julia Donaldson",
-    "dob": "1948-09-16"
-    },
-    {
-    "name": "Andrea Beaty",
-    "dob": "1961-10-08"
-    },
-    {
-    "name": "Kelly Barnhill",
-    "dob": "1973-01-01"
-    },
-    {
-    "name": "Zetta Elliott",
-    "dob": "1979-11-11"
-    }
-    ]
-    return dic
-
-@app.route("/help")
-def help_css_html():
-    return render_template("Help.html")
-
-
-@app.route("/books_html", methods = ["GET"])
-def books_html():
-    return render_template("books_ht.html")
-
-
-#Flask just run files inside (templates folder)
-@app.route("/css_practice", methods = ["GET"])
-def index_html_css():
-    return render_template("css_practice/index.html")
-
-@app.route('/team', methods=['GET'])
-def get_team():
-    team = ["Dorothy", "Rose", "Blanche", "Sophia"]
-    return render_template("team.html", team=team)
 
 #BOOKS ----------------------------------------------------------
 
@@ -101,34 +25,18 @@ def get_all_books():
     connection.connect()
     book_repository = BooksRepository(connection)
     books = book_repository.all()
-    # print(books)
     return render_template("books.html", books = books )
 
-#Add new book
-# adds `request` to your existing import
-
-
-@app.route('/books', methods=['POST'])
 #Log in before you're able to create books.
+@app.route('/books', methods=['POST'])
 @login_required
-def create_book(): 
-    # make a new database connection
+def create_book():
     connection = DatabaseConnection()
     connection.connect()
-
-    # make a new instance of BookRepository
     book_repository = BooksRepository(connection)
-
-    # get the request body
-    #book_details = request.json
     book_details = request.form
-    # my BookRepository expects an instance of Book, so make one here
     book = Books(title=book_details["title"], author=book_details["author"])
-    # save the book
     book_repository.create_book(book)
-    # return a 201, which means "created"
-    #return "created", 201
-    #Redirecting
     return redirect ("/books")
 
 #FILMS ----------------------------------------------------------
@@ -141,7 +49,9 @@ def get_all_films():
     films = film_repository.all()
     return render_template("films.html", films=films)
 
+#Log in before you're able to create films.
 @app.route('/films', methods=['POST'])
+@login_required
 def make_new_film():
     connection = DatabaseConnection()
     connection.connect()
@@ -152,32 +62,30 @@ def make_new_film():
     return redirect("/films")
 
 #USER --------------------------------------------------------------
-#GET /users/new" request
+
 @app.route('/users/new', methods=['GET'])
 def get_signup_form():
     return render_template("signup_form.html")
 
-#Log-in Form
 @app.route('/sessions/new', methods=['GET'])
 def get_login_form():
     return render_template("login_form.html")
 
-
-
-
-# and the new route
+# Sign up: the password is stored only as a salted hash, never as plain text.
 @app.route('/users', methods=['POST'])
 def create_user():
     connection = DatabaseConnection()
     connection.connect()
     user_repository = UserRepository(connection)
     user_details = request.form
-    user = User(username=user_details["username"], password=user_details["password"])
+    user = User(
+        username=user_details["username"],
+        password=generate_password_hash(user_details["password"]),
+    )
     user_repository.create(user)
     return redirect("/books")
 
-
-#Handling Submission of the Log-in Form
+# Log in: compare the typed password with the stored hash.
 @app.route('/sessions', methods=['POST'])
 def create_session():
     connection = DatabaseConnection()
@@ -189,31 +97,15 @@ def create_session():
 
     user = user_repository.find_by_username(username)
 
-    if user and user.password == password:
+    if user is not None and check_password_hash(user.password, password):
         session["user_id"] = user.id
         session["username"] = user.username
         return redirect("/books")
     else:
         return redirect("/sessions/new")
 
-# ----------------------------------------------------------
-# '''
-# in my terminal run:
-# curl -X POST http://localhost:5001/books \
-# -H "Content-Type: application/json" \
-# -d '{"title":"Book Title","author":"Author Name"}'
 
-# I should see: created returned in the terminal where you used curl
-
-# '''
-
-# NEW PART END
-
-# make the server run in response to `python app.py`
-# on port 5001 (you'll learn more about what this means later)
-# and use debug mode so that changing code restarts the app
-#**************************************************************
-#All calling methods must be before this condition.
+# Debug mode only when FLASK_DEBUG=1 (local development). Never in production:
+# the debugger would let anyone who reaches the port run code on the server.
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
-#**************************************************************
+    app.run(host="0.0.0.0", port=5001, debug=os.environ.get("FLASK_DEBUG") == "1")
